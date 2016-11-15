@@ -1,5 +1,6 @@
 # BungeesignMinigameLib
 
+[![Build Status](https://travis-ci.org/Shynixn/BungeesignMinigameLib.svg?branch=workflow)](https://travis-ci.org/Shynixn/BungeesignMinigameLib)
 [![GitHub license](http://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Shynixn/BungeesignMinigameLib/master/LICENSE)
 
 ## Description
