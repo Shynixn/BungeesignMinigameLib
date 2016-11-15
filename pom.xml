@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.shynixn</groupId>
+    <groupId>com.github.shynixn</groupId>
     <artifactId>bungeesignminigamelib</artifactId>
 
     <name>BungeesignMinigameLib</name>
     <description>Simple spigot plugin to receive server data from a bungeecord network and link minigame-server together.</description>
     <url>https://github.com/Shynixn/BungeesignMinigameLib</url>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <developers>
         <developer>
@@ -27,9 +27,9 @@
     </licenses>
 
     <scm>
-        <connection>##  scm:git:git://github.com/Shynixn/StructureBlockLib.git</connection>
-        <developerConnection>scm:git:ssh://github.com:Shynixn/StructureBlockLib.git</developerConnection>
-        <url>http://github.com/Shynixn/StructureBlockLib.git/tree/master</url>
+        <connection>##  scm:git:git://github.com/Shynixn/BungeesignMinigameLib.git</connection>
+        <developerConnection>scm:git:ssh://github.com:Shynixn/BungeesignMinigameLib.git</developerConnection>
+        <url>http://github.com/Shynixn/BungeesignMinigameLib.git/tree/master</url>
     </scm>
 
     <build>
