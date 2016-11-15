@@ -1,5 +1,6 @@
 package com.shynixn.bungeesignminigamelib.business.logic;
 
+import com.shynixn.bungeesignminigamelib.api.BungeeCordApi;
 import com.shynixn.bungeesignminigamelib.api.entity.ConnectionSign;
 import com.shynixn.bungeesignminigamelib.api.entity.ServerInfo;
 import com.shynixn.bungeesignminigamelib.api.entity.ServerState;
@@ -28,17 +29,23 @@ class BungeeCordController implements BungeeCordProvider.CallBack {
     private JavaPlugin plugin;
     private BungeeCordProvider provider;
 
+    BungeeCordApi apiInstance;
     Map<Player, String> lastServer = new HashMap<>();
     List<ConnectionSign> signs = new ArrayList<>();
 
-    BungeeCordController(JavaPlugin plugin, String prefix) {
-        PREFIX = prefix;
+    BungeeCordController(JavaPlugin plugin, BungeeCordApi apiInstance) {
+        PREFIX = apiInstance.PREFIX;
         this.plugin = plugin;
+        this.apiInstance = apiInstance;
         provider = new BungeeCordProvider(this, plugin, this);
         new BungeeCordListener(this, plugin);
         new BungeeCordCommandExecutor(this);
         load(plugin);
         run(plugin);
+    }
+
+    boolean pingAll() {
+        return provider.pingAll();
     }
 
     boolean ping(String serverName) {
@@ -53,7 +60,7 @@ class BungeeCordController implements BungeeCordProvider.CallBack {
         plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
-                provider.ping();
+                provider.pingSigns();
             }
         }, 0L, 10L);
     }
@@ -110,10 +117,10 @@ class BungeeCordController implements BungeeCordProvider.CallBack {
     }
 
     void updateSign(Sign sign, ServerInfo info) {
-        sign.setLine(0, replaceSign(SIGN_LINE_1, info));
-        sign.setLine(1, replaceSign(SIGN_LINE_2, info));
-        sign.setLine(2, replaceSign(SIGN_LINE_3, info));
-        sign.setLine(3, replaceSign(SIGN_LINE_4, info));
+        sign.setLine(0, replaceSign(apiInstance.SIGN_LINE_1, info));
+        sign.setLine(1, replaceSign(apiInstance.SIGN_LINE_2, info));
+        sign.setLine(2, replaceSign(apiInstance.SIGN_LINE_3, info));
+        sign.setLine(3, replaceSign(apiInstance.SIGN_LINE_4, info));
         sign.update();
     }
 
@@ -142,13 +149,28 @@ class BungeeCordController implements BungeeCordProvider.CallBack {
         line = line.replace("<players>", String.valueOf(info.getPlayerAmount()));
         line = line.replace("<server>", info.getServerName());
         if(info.getState() == ServerState.INGAME)
-            line = line.replace("<state>", SIGN_INGAME);
+            line = line.replace("<state>", apiInstance.SIGN_INGAME);
         else if(info.getState() == ServerState.RESTARTING)
-            line = line.replace("<state>", SIGN_RESTARTING);
+            line = line.replace("<state>", apiInstance.SIGN_RESTARTING);
         else if(info.getState() == ServerState.WAITING_FOR_PLAYERS)
-            line = line.replace("<state>", SIGN_WAITING_FOR_PLAYERS);
+            line = line.replace("<state>", apiInstance.SIGN_WAITING_FOR_PLAYERS);
         else if(info.getState() == ServerState.UNKNOWN)
             line = line.replace("<state>", "UNKNOWN");
         return line;
+    }
+
+    public void dispose()
+    {
+        if(plugin != null)
+        {
+            provider.dispose();
+            signs.clear();
+            lastServer.clear();
+            provider = null;
+            plugin = null;
+            lastServer = null;
+            signs = null;
+            apiInstance = null;
+        }
     }
 }

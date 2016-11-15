@@ -8,8 +8,6 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 
-import static com.shynixn.bungeesignminigamelib.api.BungeeCordApi.*;
-
 /**
  * Created by Shynixn
  */
@@ -17,14 +15,14 @@ class BungeeCordCommandExecutor extends BukkitCommand {
     private BungeeCordController controller;
 
     BungeeCordCommandExecutor(BungeeCordController controller) {
-        super(COMMAND_COMMAND);
+        super(controller.apiInstance.COMMAND_COMMAND);
         this.controller = controller;
-        this.description = COMMAND_DESCRIPTION;
-        this.usageMessage = COMMAND_USEAGE;
-        this.setPermission(COMMAND_PERMISSION);
-        this.setPermissionMessage(COMMAND_PERMISSION_MESSAGE);
+        this.description = controller.apiInstance.COMMAND_DESCRIPTION;
+        this.usageMessage = controller.apiInstance.COMMAND_USEAGE;
+        this.setPermission(controller.apiInstance.COMMAND_PERMISSION);
+        this.setPermissionMessage(controller.apiInstance.COMMAND_PERMISSION_MESSAGE);
         this.setAliases(new ArrayList<String>());
-        registerDynamicCommand(COMMAND_COMMAND, this);
+        registerDynamicCommand(controller.apiInstance.COMMAND_COMMAND, this);
     }
 
     @Override
@@ -46,8 +44,8 @@ class BungeeCordCommandExecutor extends BukkitCommand {
         try {
             Class<?> subClazz = Class.forName("org.bukkit.craftbukkit.VERSION.CraftServer".replace("VERSION", BungeeCord.getServerVersion()));
             Object instance = subClazz.cast(Bukkit.getServer());
-            instance = BungeeCord.invokeMethodByObject(instance, "getCommandMap");
-            BungeeCord.invokeMethodByObject(instance, "register", command, clazz);
+            instance = BungeeCordHelper.invokeMethodByObject(instance, "getCommandMap");
+            BungeeCordHelper.invokeMethodByObject(instance, "register", command, clazz);
         }
         catch (Exception ex) {
             ex.printStackTrace();

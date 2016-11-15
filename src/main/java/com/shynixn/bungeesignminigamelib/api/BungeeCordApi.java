@@ -10,36 +10,39 @@ import org.bukkit.plugin.java.JavaPlugin;
  * Created by Shynixn
  */
 public class BungeeCordApi {
-    public static String MOD_RESTARTING = ChatColor.RED + "Restarting";
-    public static String MOD_WAITING_FOR_PLAYERS = ChatColor.GREEN + "Waiting for players...";
-    public static String MOD_INGAME = ChatColor.BLUE + "Ingame";
+    public String MOD_RESTARTING = ChatColor.RED + "Restarting";
+    public String MOD_WAITING_FOR_PLAYERS = ChatColor.GREEN + "Waiting for players...";
+    public String MOD_INGAME = ChatColor.BLUE + "Ingame";
 
-    public static String SIGN_RESTARTING = ChatColor.RED + "" + ChatColor.BOLD + "Restarting";
-    public static String SIGN_WAITING_FOR_PLAYERS = ChatColor.GREEN + "" + ChatColor.BOLD + "Join";
-    public static String SIGN_INGAME = ChatColor.BLUE + "" + ChatColor.BOLD+ "Ingame";
+    public String SIGN_RESTARTING = ChatColor.RED + "" + ChatColor.BOLD + "Restarting";
+    public String SIGN_WAITING_FOR_PLAYERS = ChatColor.GREEN + "" + ChatColor.BOLD + "Join";
+    public String SIGN_INGAME = ChatColor.BLUE + "" + ChatColor.BOLD+ "Ingame";
 
-    public static String COMMAND_COMMAND = null;
-    public static String COMMAND_USEAGE = "/e <server>";
-    public static String COMMAND_PERMISSION_MESSAGE = "You don't have permission.";
-    public static String COMMAND_PERMISSION = ".admin";
-    public static String COMMAND_DESCRIPTION = "Configures bungee signs.";
+    public String COMMAND_COMMAND = null;
+    public String COMMAND_USEAGE = "/e <server>";
+    public String COMMAND_PERMISSION_MESSAGE = "You don't have permission.";
+    public String COMMAND_PERMISSION = ".admin";
+    public String COMMAND_DESCRIPTION = "Configures bungee signs.";
 
-    public static String SIGN_LINE_1 = null;
-    public static String SIGN_LINE_2 = "<server>";
-    public static String SIGN_LINE_3 = "<state>";
-    public static String SIGN_LINE_4 = "<players>/<maxplayers>";
+    public String SIGN_LINE_1 = null;
+    public String SIGN_LINE_2 = "<server>";
+    public String SIGN_LINE_3 = "<state>";
+    public String SIGN_LINE_4 = "<players>/<maxplayers>";
 
-    public static String PREFIX = null;
+    public String PREFIX = null;
+    public boolean ENABLED = false;
+    public boolean SIGN_MODE = true;
 
-    private static BungeeCord bungeeCord;
+    private BungeeCord bungeeCord;
 
-    private static BungeeCord getBungeeCord() {
-        if(bungeeCord == null)
-            bungeeCord = new BungeeCord();
-        return bungeeCord;
+    public static BungeeCordApi createApiInstance()
+    {
+        BungeeCordApi bungeeCordApi = new BungeeCordApi();
+        bungeeCordApi.bungeeCord = new BungeeCord(bungeeCordApi);
+        return bungeeCordApi;
     }
 
-    public static void enable(JavaPlugin plugin) {
+    public void enable(JavaPlugin plugin) {
         if(plugin == null)
             throw new IllegalArgumentException("Plugin cannot be null!");
         if(COMMAND_COMMAND == null)
@@ -48,42 +51,50 @@ public class BungeeCordApi {
             throw new IllegalStateException("Sign line 1 cannot be null!. Set the SIGN_LINE_1 field!");
         if(PREFIX  == null)
             throw new IllegalStateException("Prefix cannot be null!. Set the PREFIX field!");
-        getBungeeCord().reload(plugin);
+        bungeeCord.enable(plugin);
     }
 
-    public static boolean requestServerInformation(String serverName) {
+    public void disable() {
+        bungeeCord.disable();
+    }
+
+    public boolean requestServerInformation(String serverName) {
         if(serverName == null)
             throw new IllegalArgumentException("ServerName cannot be null!");
-        return getBungeeCord().ping(serverName);
+        return bungeeCord.ping(serverName);
     }
 
-    public static void connect(Player player, String serverName) {
+    public boolean requestServerInformation() {
+        return bungeeCord.pingAll();
+    }
+
+    public void connect(Player player, String serverName) {
         if(player == null)
             throw new IllegalArgumentException("Player cannot be null!");
         if(serverName == null)
             throw new IllegalArgumentException("ServerName cannot be null!");
-        getBungeeCord().connect(player, serverName);
+        bungeeCord.connect(player, serverName);
     }
 
-    public static void setServerMotd(String motd) {
+    public void setServerMotd(String motd) {
         if(motd == null)
             throw new IllegalArgumentException("Motd cannot be null!");
-        getBungeeCord().setModt(motd);
+        bungeeCord.setModt(motd);
     }
 
-    public static String getServerMotd() {
+    public String getServerMotd() {
         return Bukkit.getServer().getMotd();
     }
 
-    public static boolean isMinigameModeEnabled() {
-        return getBungeeCord().isMinigameModeEnabled();
+    public boolean isMinigameModeEnabled() {
+        return bungeeCord.isMinigameModeEnabled();
     }
 
-    public static boolean isSignConnectingEnabled() {
-        return getBungeeCord().isSignModeEnabled();
+    public boolean isSignConnectingEnabled() {
+        return bungeeCord.isSignModeEnabled();
     }
 
-    public static String getServerVersion() {
-        return getBungeeCord().getServerVersion();
+    public String getServerVersion() {
+        return bungeeCord.getServerVersion();
     }
 }

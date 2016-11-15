@@ -42,7 +42,18 @@ class BungeeCordProvider implements PluginMessageListener {
         return true;
     }
 
-    boolean ping() {
+    boolean pingAll()
+    {
+        Player player = getFirstPlayer();
+        if(player == null)
+            return false;
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("GetServers");
+        player.sendPluginMessage(plugin,"BungeeCord", out.toByteArray());
+        return true;
+    }
+
+    boolean pingSigns() {
         Player player = getFirstPlayer();
         if(player == null)
             return false;
@@ -82,6 +93,13 @@ class BungeeCordProvider implements PluginMessageListener {
                     parseData(serverName,data);
                 }
             });
+        }
+        else if(type.equals("GetServers"))
+        {
+            for(String serverName : in.readUTF().split(", "))
+            {
+                ping(serverName);
+            }
         }
     }
 
@@ -136,5 +154,16 @@ class BungeeCordProvider implements PluginMessageListener {
             Bukkit.getServer().getConsoleSender().sendMessage(controller.PREFIX + ChatColor.RED + "Failed to reach server "  +  serverName + " (" + hostname + ":" + port + ").");
         }
         return data;
+    }
+
+    public void dispose()
+    {
+        if (plugin != null)
+        {
+            plugin.getServer().getMessenger().unregisterIncomingPluginChannel(plugin, "BungeeCord", this);
+            controller = null;
+            plugin = null;
+            callBack = null;
+        }
     }
 }

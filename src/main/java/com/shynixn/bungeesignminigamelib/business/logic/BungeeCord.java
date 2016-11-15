@@ -24,22 +24,46 @@ import static com.shynixn.bungeesignminigamelib.api.BungeeCordApi.*;
  */
 public final class BungeeCord
 {
-    private static boolean ENABLED = false;
-    private static boolean SIGN_MODE = true;
-
     private BungeeCordController controller;
+    private BungeeCordApi apiInstance;
+    private boolean isEnabled = false;
 
-    public void reload(JavaPlugin plugin) {
-        COMMAND_USEAGE = "/" + COMMAND_COMMAND + " <server>";
-        COMMAND_PERMISSION = COMMAND_COMMAND + ".admin";
+    public BungeeCord(BungeeCordApi apiInstance) {
+        this.apiInstance = apiInstance;
+    }
+
+    public void enable(JavaPlugin plugin) {
+        if(!isEnabled)
+            return;
+        isEnabled = true;
+        apiInstance.COMMAND_USEAGE = "/" + apiInstance.COMMAND_COMMAND + " <server>";
+        apiInstance.COMMAND_PERMISSION = apiInstance.COMMAND_COMMAND + ".admin";
         buildConfigFile(plugin);
         if(isMinigameModeEnabled()) {
-            Bukkit.getConsoleSender().sendMessage(PREFIX + ChatColor.YELLOW + "Enabled MINIGAME to allow joining.");
+            Bukkit.getConsoleSender().sendMessage(apiInstance.PREFIX + ChatColor.YELLOW + "Enabled MINIGAME to allow joining.");
         }
         else if(isSignModeEnabled()) {
-            controller = new BungeeCordController(plugin, PREFIX);
-            Bukkit.getConsoleSender().sendMessage(PREFIX  + ChatColor.YELLOW + "Enabled SIGN to manage signs.");
+            controller = new BungeeCordController(plugin, apiInstance);
+            Bukkit.getConsoleSender().sendMessage(apiInstance.PREFIX  + ChatColor.YELLOW + "Enabled SIGN to manage signs.");
         }
+    }
+    public boolean isEnabled()
+    {
+        return isEnabled;
+    }
+
+    public void disable()
+    {
+        if(isEnabled)
+        {
+            controller.dispose();
+            controller = null;
+            isEnabled = false;
+        }
+    }
+
+    public boolean pingAll() {
+        return controller.pingAll();
     }
 
     public boolean ping(String serverName) {
@@ -51,11 +75,11 @@ public final class BungeeCord
     }
 
     public boolean isMinigameModeEnabled() {
-        return ENABLED && !SIGN_MODE;
+        return apiInstance.ENABLED && ! apiInstance.SIGN_MODE;
     }
 
     public boolean isSignModeEnabled() {
-        return ENABLED && SIGN_MODE;
+        return  apiInstance.ENABLED &&  apiInstance.SIGN_MODE;
     }
 
     public void setModt(String motd) {
@@ -64,8 +88,8 @@ public final class BungeeCord
                motd = motd.replace("[","").replace("]","");
                Class<?> clazz = Class.forName("org.bukkit.craftbukkit.VERSION.CraftServer".replace("VERSION",getServerVersion()));
                Object obj = clazz.cast(Bukkit.getServer());
-               obj = invokeMethodByObject(obj, "getServer");
-               invokeMethodByObject(obj, "setMotd","[" +  motd + ChatColor.RESET + "]");
+               obj = BungeeCordHelper.invokeMethodByObject(obj, "getServer");
+               BungeeCordHelper. invokeMethodByObject(obj, "setMotd","[" +  motd + ChatColor.RESET + "]");
            }
            catch (Exception ex) {
                ex.printStackTrace();
@@ -73,7 +97,7 @@ public final class BungeeCord
        }
     }
 
-    private static void buildConfigFile(JavaPlugin plugin) {
+    private void buildConfigFile(JavaPlugin plugin) {
         try {
             File file = new File(plugin.getDataFolder(),"bungeecord.yml");
             if(!file.exists()) {
@@ -91,15 +115,15 @@ public final class BungeeCord
                         s.add(field.getName().toLowerCase() + ": \"" + String.valueOf(field.get(null)).replace('§', '&') + "\"");
                     }
                 }
-                writeAllLines(file, s.toArray(new String[0]));
+                BungeeCordHelper.writeAllLines(file, s.toArray(new String[0]));
             }
             else {
                 try {
                     FileConfiguration configuration = new YamlConfiguration();
                     configuration.load(file);
-                    ENABLED = configuration.getBoolean("enabled");
+                    apiInstance.ENABLED = configuration.getBoolean("enabled");
                     if(configuration.getString("connection").equalsIgnoreCase("MINIGAME"))
-                        SIGN_MODE = false;
+                        apiInstance.SIGN_MODE = false;
                     Map<String, Object> map = configuration.getConfigurationSection("").getValues(true);
                     for(Field field :  BungeeCord.class.getDeclaredFields()) {
                         for(String key : map.keySet()) {
@@ -122,46 +146,6 @@ public final class BungeeCord
         catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private static boolean writeAllLines(File file, String... text) {
-        try {
-            if(file.exists()) {
-                if(!file.delete())
-                    throw new IllegalStateException("Cannot delete previous file!");
-            }
-            if(!file.createNewFile())
-                throw new IllegalStateException("Cannot create file!");
-            try(BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"UTF-8"))) {
-                for(int i = 0; i< text.length; i++) {
-                    bufferedWriter.write(text[i] + "\n");
-                }
-            }
-            return true;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    static Object invokeMethodByObject(Object object, String name, Object... params) {
-        Class<?> clazz = object.getClass();
-        do {
-            for(Method method : clazz.getDeclaredMethods()) {
-                try {
-                    if(method.getName().equalsIgnoreCase(name)) {
-                        method.setAccessible(true);
-                        return method.invoke(object, params);
-                    }
-                }
-                catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            clazz = clazz.getSuperclass();
-        }while (clazz != null);
-        throw new RuntimeException("Cannot find correct method.");
     }
 
     public static String getServerVersion() {
