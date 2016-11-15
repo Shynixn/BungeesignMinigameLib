@@ -1,0 +1,15 @@
+language: java
+sudo: true
+install:
+    - cd /home/travis/build/Shynixn/BungeesignMinigameLib/
+    - mkdir lib
+    - wget https://hub.spigotmc.org/jenkins/job/BuildTools/lastStableBuild/artifact/target/BuildTools.jar -P /home/travis/build/Shynixn/BungeesignMinigameLib/lib/
+script:
+    - cd /home/travis/build/Shynixn/BungeesignMinigameLib/lib/
+    - java -jar BuildTools.jar --rev 1.10 | grep -vE "[^/ ]*/[^/ ]*\s*KB\s*$" | grep -v "^\s*$"
+    - cd -
+    - mvn compile test
+jdk:
+  - oraclejdk8
+
+
