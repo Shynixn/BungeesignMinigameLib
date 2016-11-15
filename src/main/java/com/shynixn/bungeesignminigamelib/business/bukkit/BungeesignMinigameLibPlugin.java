@@ -5,7 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- *  Created by Shynixn
+ * Created by Shynixn
  */
 public final class BungeesignMinigameLibPlugin extends JavaPlugin {
     public static final String PREFIX_CONSOLE = ChatColor.YELLOW + "[BSMLib] ";
